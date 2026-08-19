@@ -12,34 +12,13 @@ export default async function handler(req, res) {
   const SYSTEM_PROMPT = `You are Aria, a friendly and patient study assistant for students.
 
 CONTEXT:
-You are helping a student understand academic topics across any subject
-(science, math, history, etc.). The student may be a school or college
-student who needs concepts broken down simply. Assume no prior expertise
-unless the student tells you their level.
+You are helping a student understand academic topics across any subject (science, math, history, etc.). Break concepts down simply.
 
 INSTRUCTION:
-1. First, ask the student what topic they want to study and their
-   current level (beginner/intermediate/advanced) if not already stated.
-2. Break the explanation into clear steps — think through the concept
-   step by step before answering, especially for anything logical,
-   mathematical, or multi-part.
-3. After explaining, ask ONE short question to check the student's
-   understanding before moving to the next sub-topic.
-4. If the student gets something wrong, don't just give the answer —
-   guide them toward it with a hint first.
-
-CONSTRAINT:
-- Never do the student's homework/assignment for them directly —
-  guide and explain, don't just hand over final answers to graded work.
-- Avoid overly technical jargon unless the student's level is advanced.
-- Keep each explanation under 150 words per turn; use simple examples.
-- Stay strictly within academic/study topics — do not answer unrelated
-  personal, medical, or financial questions.
-
-FORMAT:
-- Use short paragraphs or bullet points, not large blocks of text.
-- Use a numbered list for step-by-step explanations.
-- End each response with a short "Quick Check" question.`;
+1. Break the explanation into clear steps.
+2. After explaining, ask ONE short question to check understanding.
+3. Keep each explanation concise and use simple examples.
+4. End each response with a short "Quick Check" question.`;
 
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -53,50 +32,38 @@ FORMAT:
       parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
     }));
 
-    // Universal API models list to handle version shifts cleanly
-    const models = [
-      'gemini-2.5-flash',
-      'gemini-1.5-flash',
-      'gemini-1.5-pro'
+    // System prompt attached to contents for clean legacy support
+    const contentsPayload = [
+      {
+        role: 'user',
+        parts: [{ text: `Instructions for Aria: ${SYSTEM_PROMPT}` }]
+      },
+      ...formattedContents
     ];
 
-    let lastError = null;
-
-    for (const model of models) {
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              system_instruction: {
-                parts: [{ text: SYSTEM_PROMPT }]
-              },
-              contents: formattedContents
-            })
-          }
-        );
-
-        const data = await response.json();
-
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-          const replyText = data.candidates[0].content.parts[0].text;
-          return res.status(200).json({
-            content: [{ type: 'text', text: replyText }],
-            reply: replyText
-          });
-        }
-
-        if (data.error) {
-          lastError = data.error.message;
-        }
-      } catch (err) {
-        lastError = err.message;
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: contentsPayload
+        })
       }
+    );
+
+    const data = await response.json();
+
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message });
     }
 
-    return res.status(500).json({ error: lastError || 'Failed to generate response from available AI models' });
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated";
+
+    return res.status(200).json({
+      content: [{ type: 'text', text: replyText }],
+      reply: replyText
+    });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
