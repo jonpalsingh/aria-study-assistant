@@ -39,55 +39,55 @@
     display:flex;
     align-items:center;
     justify-content:space-between;
-    padding:22px 28px;
+    padding:14px 18px;
     max-width:900px;
     width:100%;
     margin:0 auto;
+    flex-wrap: wrap;
+    gap: 10px;
   }
   .wordmark{
     display:flex;
     align-items:center;
-    gap:10px;
+    gap:8px;
   }
   .wordmark .dot{
-    width:9px; height:9px; border-radius:50%;
+    width:8px; height:8px; border-radius:50%;
     background:radial-gradient(circle at 35% 30%, #ffe3b0, var(--lamp));
-    box-shadow:0 0 12px 2px rgba(255,180,84,0.6);
+    box-shadow:0 0 10px 2px rgba(255,180,84,0.6);
   }
   .wordmark span{
     font-family:'Fraunces',serif;
     font-style:italic;
     font-weight:600;
-    font-size:21px;
-    letter-spacing:0.01em;
+    font-size:19px;
   }
   .wordmark .tagline{
     font-family:'Inter',sans-serif;
-    font-style:normal;
-    font-weight:500;
-    font-size:12px;
+    font-size:11px;
     color:var(--text-muted);
-    padding-left:10px;
-    margin-left:10px;
+    padding-left:8px;
+    margin-left:8px;
     border-left:1px solid var(--border);
   }
   @media (max-width:480px){
-    .wordmark .tagline{ font-size: 10px; padding-left: 6px; margin-left: 6px; }
+    .wordmark .tagline{ display:none; }
   }
-  .nav-actions{ display:flex; align-items:center; gap:8px; flex-wrap: wrap; }
+  .nav-actions{ display:flex; align-items:center; gap:6px; }
   .pill-btn{
     background:var(--surface);
     border:1px solid var(--border);
     color:var(--text-muted);
     font-family:'Inter',sans-serif;
-    font-size:12px;
+    font-size:11.5px;
     font-weight:500;
-    padding:7px 12px;
+    padding:6px 10px;
     border-radius:100px;
     cursor:pointer;
     display:flex;
     align-items:center;
-    gap:5px;
+    gap:4px;
+    white-space:nowrap;
     transition:all .15s;
   }
   .pill-btn:hover{ border-color:var(--violet); color:var(--text); }
@@ -97,17 +97,17 @@
     flex:1;
     display:flex;
     justify-content:center;
-    padding:10px 20px 28px;
+    padding:5px 12px 16px;
   }
   .chat-card{
     width:100%;
     max-width:720px;
     display:flex;
     flex-direction:column;
-    height:calc(100vh - 100px);
+    height:calc(100vh - 80px);
     background:linear-gradient(180deg, rgba(30,24,50,0.6), rgba(30,24,50,0.3));
     border:1px solid var(--border);
-    border-radius:22px;
+    border-radius:18px;
     overflow:hidden;
     backdrop-filter:blur(6px);
   }
@@ -115,10 +115,10 @@
   .messages{
     flex:1;
     overflow-y:auto;
-    padding:32px 30px 10px;
+    padding:20px 16px 10px;
     display:flex;
     flex-direction:column;
-    gap:18px;
+    gap:14px;
   }
 
   /* empty state */
@@ -129,43 +129,43 @@
     align-items:center;
     justify-content:center;
     text-align:center;
-    padding:0 20px;
-    gap:22px;
+    padding:0 10px;
+    gap:18px;
   }
   .empty-state .glow-avatar{
-    width:64px; height:64px; border-radius:50%;
+    width:54px; height:54px; border-radius:50%;
     background:radial-gradient(circle at 35% 30%, #ffe3b0, var(--lamp) 45%, var(--violet-deep) 100%);
-    box-shadow:0 0 40px 6px rgba(255,180,84,0.25);
+    box-shadow:0 0 30px 5px rgba(255,180,84,0.25);
     animation:pulse 3.5s ease-in-out infinite;
   }
   @keyframes pulse{
-    0%,100%{ transform:scale(1); box-shadow:0 0 40px 6px rgba(255,180,84,0.25); }
-    50%{ transform:scale(1.06); box-shadow:0 0 55px 10px rgba(255,180,84,0.4); }
+    0%,100%{ transform:scale(1); box-shadow:0 0 30px 5px rgba(255,180,84,0.25); }
+    50%{ transform:scale(1.06); box-shadow:0 0 45px 8px rgba(255,180,84,0.4); }
   }
   .empty-state h1{
     font-family:'Fraunces',serif;
     font-weight:600;
-    font-size:30px;
+    font-size:24px;
   }
   .empty-state p{
     color:var(--text-muted);
-    font-size:14.5px;
-    max-width:340px;
-    line-height:1.6;
+    font-size:13.5px;
+    max-width:320px;
+    line-height:1.5;
   }
   .chips{
     display:flex;
     flex-wrap:wrap;
-    gap:9px;
+    gap:7px;
     justify-content:center;
-    max-width:460px;
+    max-width:420px;
   }
   .chip{
     background:var(--surface);
     border:1px solid var(--border);
     color:var(--text);
-    font-size:13px;
-    padding:9px 15px;
+    font-size:12px;
+    padding:7px 12px;
     border-radius:100px;
     cursor:pointer;
     transition:all .15s;
@@ -173,18 +173,17 @@
   .chip:hover{
     border-color:var(--lamp);
     background:var(--surface-2);
-    transform:translateY(-1px);
   }
 
   /* messages */
-  .row{ display:flex; gap:11px; align-items:flex-end; animation:rise .35s ease; }
-  @keyframes rise{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0);} }
+  .row{ display:flex; gap:9px; align-items:flex-end; animation:rise .3s ease; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0);} }
   .row.user{ flex-direction:row-reverse; }
   .avatar{
-    width:30px; height:30px; border-radius:50%;
+    width:26px; height:26px; border-radius:50%;
     flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Fraunces',serif; font-weight:600; font-size:13px;
+    font-family:'Fraunces',serif; font-weight:600; font-size:11px;
   }
   .avatar.aria{
     background:radial-gradient(circle at 35% 30%, #ffe3b0, var(--lamp) 60%, var(--violet-deep));
@@ -195,38 +194,38 @@
     border:1px solid var(--border);
     color:var(--text-muted);
     font-family:'Inter',sans-serif;
-    font-size:12px;
+    font-size:11px;
     font-weight:600;
   }
   .bubble-wrapper {
     display: flex;
     flex-direction: column;
-    max-width: 74%;
-    gap: 4px;
+    max-width: 82%;
+    gap: 3px;
   }
   .bubble{
-    padding:12px 16px;
-    border-radius:16px;
-    font-size:14.5px;
-    line-height:1.62;
-    white-space:pre-wrap;
+    padding:10px 14px;
+    border-radius:14px;
+    font-size:13.5px;
+    line-height:1.55;
+    word-break: break-word;
   }
   .row.aria .bubble{
     background:var(--surface);
     border:1px solid var(--border);
-    border-bottom-left-radius:4px;
+    border-bottom-left-radius:3px;
   }
   .row.user .bubble{
     background:linear-gradient(135deg, var(--violet-deep), var(--violet));
     color:#fff;
-    border-bottom-right-radius:4px;
+    border-bottom-right-radius:3px;
   }
   .speak-btn {
     align-self: flex-start;
     background: none;
     border: none;
     color: var(--text-muted);
-    font-size: 11px;
+    font-size: 10.5px;
     cursor: pointer;
     padding: 2px 4px;
     display: flex;
@@ -236,10 +235,10 @@
   .speak-btn:hover { color: var(--lamp); }
 
   .typing-row .bubble{
-    display:flex; gap:5px; align-items:center; padding:14px 16px;
+    display:flex; gap:4px; align-items:center; padding:12px 14px;
   }
   .typing-dot{
-    width:6px; height:6px; border-radius:50%;
+    width:5px; height:5px; border-radius:50%;
     background:var(--text-muted);
     animation:blink 1.2s infinite ease-in-out;
   }
@@ -251,15 +250,15 @@
     align-self:center;
     color:#ff8a8a;
     font-family:'IBM Plex Mono',monospace;
-    font-size:12px;
+    font-size:11px;
     text-align:center;
   }
 
   /* composer */
   .composer{
     display:flex;
-    gap:10px;
-    padding:16px 20px 20px;
+    gap:8px;
+    padding:12px 14px 14px;
     border-top:1px solid var(--border);
     align-items: center;
   }
@@ -269,9 +268,9 @@
     border:1px solid var(--border);
     color:var(--text);
     font-family:'Inter',sans-serif;
-    font-size:14.5px;
-    padding:13px 17px;
-    border-radius:14px;
+    font-size:13.5px;
+    padding:11px 14px;
+    border-radius:12px;
     outline:none;
     transition:border-color .15s;
   }
@@ -279,8 +278,8 @@
   .composer input::placeholder{ color:var(--text-muted); }
   
   .icon-btn{
-    width:46px; height:46px;
-    border-radius:14px;
+    width:40px; height:40px;
+    border-radius:12px;
     border:1px solid var(--border);
     background:var(--surface);
     color:var(--text-muted);
@@ -293,8 +292,8 @@
   .icon-btn.recording{ background:rgba(255,80,80,0.2); border-color:#ff5050; color:#ff8a8a; animation: pulse 1s infinite; }
 
   .send-btn{
-    width:46px; height:46px;
-    border-radius:14px;
+    width:40px; height:40px;
+    border-radius:12px;
     border:none;
     background:linear-gradient(135deg, var(--lamp), var(--violet));
     color:#1c1526;
@@ -315,67 +314,66 @@
   }
   .overlay.open{ opacity:1; pointer-events:auto; }
   .panel{
-    position:fixed; top:0; right:-420px; width:400px; max-width:88vw; height:100%;
+    position:fixed; top:0; right:-420px; width:360px; max-width:85vw; height:100%;
     background:var(--bg-2);
     border-left:1px solid var(--border);
     z-index:41;
-    padding:28px 26px;
+    padding:24px 20px;
     overflow-y:auto;
     transition:right .3s cubic-bezier(.2,.8,.2,1);
   }
   .panel.open{ right:0; }
   .panel-close{
     background:none; border:none; color:var(--text-muted);
-    font-size:22px; cursor:pointer; float:right; line-height:1;
+    font-size:20px; cursor:pointer; float:right; line-height:1;
   }
   .panel h2{
     font-family:'Fraunces',serif;
-    font-size:22px;
+    font-size:20px;
     font-weight:600;
     margin-bottom:6px;
   }
   .panel .sub{
     color:var(--text-muted);
-    font-size:13px;
-    margin-bottom:24px;
-    line-height:1.5;
+    font-size:12px;
+    margin-bottom:20px;
+    line-height:1.4;
   }
   .cifc-block{
-    margin-bottom:18px;
-    padding-left:14px;
+    margin-bottom:16px;
+    padding-left:12px;
     border-left:3px solid var(--lamp);
   }
   .cifc-tag{
     display:inline-block;
     font-family:'IBM Plex Mono',monospace;
-    font-size:10px;
+    font-size:9.5px;
     letter-spacing:0.08em;
     background:rgba(255,180,84,0.15);
     color:var(--lamp);
-    padding:3px 8px;
-    border-radius:5px;
-    margin-bottom:7px;
+    padding:2px 6px;
+    border-radius:4px;
+    margin-bottom:5px;
     font-weight:600;
   }
   .cifc-text{
-    font-size:13.3px;
-    line-height:1.6;
+    font-size:12.5px;
+    line-height:1.5;
     color:#d8d2ec;
   }
   .cifc-text strong{ color:#fff; }
 
   footer{
     text-align:center;
-    padding:14px;
+    padding:10px;
     font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
+    font-size:10px;
     color:#5f5680;
   }
 
   @media (max-width:640px){
-    .chat-card{ border-radius:0; height:calc(100vh - 76px); }
-    nav{ padding:16px 14px; }
-    .bubble{ max-width:88%; }
+    .chat-card{ border-radius:0; height:calc(100vh - 65px); }
+    nav{ padding:10px 12px; }
   }
 </style>
 </head>
@@ -388,9 +386,9 @@
     <span class="tagline">AI Study Assistant · By Jonpal Singh</span>
   </div>
   <div class="nav-actions">
-    <button class="pill-btn" onclick="startQuizMode()">🎯 Quiz Mode</button>
-    <button class="pill-btn" onclick="clearChat()">🗑️ New Chat</button>
-    <button class="pill-btn" onclick="openPanel()">✦ Info</button>
+    <button class="pill-btn" onclick="startQuizMode()">🎯 Quiz</button>
+    <button class="pill-btn" onclick="clearChat()">🗑️ New</button>
+    <button class="pill-btn" onclick="openPanel()">✦ How it's built</button>
   </div>
 </nav>
 
@@ -412,42 +410,42 @@
       </div>
     </div>
     <form class="composer" id="composer">
-      <button type="button" class="icon-btn" id="micBtn" onclick="toggleSpeech()" title="Speak your question">🎤</button>
-      <input type="text" id="userInput" placeholder="Ask Aria anything you're studying…" autocomplete="off" />
+      <button type="button" class="icon-btn" id="micBtn" onclick="toggleSpeech()" title="Speak">🎤</button>
+      <input type="text" id="userInput" placeholder="Ask Aria anything..." autocomplete="off" />
       <button type="submit" class="send-btn" id="sendBtn" aria-label="Send">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 12L20 4L14 20L11 13L4 12Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 12L20 4L14 20L11 13L4 12Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
       </button>
     </form>
   </div>
 </main>
 
-<footer>Prompt-engineered with the CIFC framework · Built for an AI Tools course</footer>
+<footer>Prompt-engineered with CIFC framework · Masai × IIT Patna AI/ML</footer>
 
 <div class="overlay" id="overlay" onclick="closePanel()"></div>
 <div class="panel" id="panel">
   <button class="panel-close" onclick="closePanel()">&times;</button>
   <h2>How Aria is built</h2>
-  <p class="sub">Aria's entire behavior comes from one system prompt, structured with the <strong>CIFC framework</strong> — Context, Instruction, Format, Constraint.</p>
+  <p class="sub">Aria's behavior comes from a system prompt using the <strong>CIFC framework</strong> — Context, Instruction, Format, Constraint.</p>
 
   <div class="cifc-block">
     <span class="cifc-tag">C — CONTEXT</span>
-    <p class="cifc-text">Aria helps students across <strong>any subject</strong>, at a level the student states (or is asked for). No prior expertise is assumed.</p>
+    <p class="cifc-text">Aria is a female AI study assistant helping students across any subject simply and patiently.</p>
   </div>
   <div class="cifc-block">
     <span class="cifc-tag">I — INSTRUCTION</span>
-    <p class="cifc-text">Ask the topic + level first → explain <strong>step by step</strong> → ask one quick check-question before moving on → if the student is wrong, hint first instead of giving the answer.</p>
+    <p class="cifc-text">Ask topic & level first → explain step by step → ask a quick check question before moving forward.</p>
   </div>
   <div class="cifc-block">
     <span class="cifc-tag">F — FORMAT</span>
-    <p class="cifc-text">Short paragraphs or bullets. Numbered steps for explanations. Every reply ends with a <strong>Quick Check</strong> question.</p>
+    <p class="cifc-text">Short paragraphs or clean bullet points without raw markdown symbols. Every response ends with a Quick Check.</p>
   </div>
   <div class="cifc-block">
     <span class="cifc-tag">C — CONSTRAINT</span>
-    <p class="cifc-text">Never completes graded homework directly — guides instead. Simple language unless told "advanced." Under ~150 words per turn. Stays on academic topics only.</p>
+    <p class="cifc-text">Never complete direct homework. Keep answers under 150 words per turn. Stay strictly academic.</p>
   </div>
   <div class="cifc-block" style="border-left-color: #8f7cff;">
     <span class="cifc-tag" style="background: rgba(143,124,255,0.15); color: #8f7cff;">CREATOR</span>
-    <p class="cifc-text">Designed & developed by <strong>Jonpal Singh</strong> as part of the <strong>Masai × IIT Patna AI & ML Training Program</strong>.</p>
+    <p class="cifc-text">Designed & developed by <strong>Jonpal Singh</strong> for Masai × IIT Patna.</p>
   </div>
 </div>
 
@@ -490,22 +488,24 @@ function sendSuggestion(el){
   composer.requestSubmit();
 }
 
-function escapeHtml(str){
-  const d = document.createElement('div');
-  d.innerText = str;
-  return d.innerHTML;
+// Clean markdown stars so text looks neat
+function cleanText(text){
+  return text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
 }
 
-// Text to Speech with Indian Tone preference
 function speakText(text){
-  if(!('speechSynthesis' in window)){
-    alert("Text-to-speech not supported in this browser.");
-    return;
-  }
+  if(!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'hi-IN'; // Indian Accent preference
+  const cleanSpoken = cleanText(text);
+  const utterance = new SpeechSynthesisUtterance(cleanSpoken);
+  utterance.lang = 'hi-IN'; // Indian Accent
   utterance.rate = 0.95;
+  
+  // Try to pick a female voice if available in browser
+  const voices = window.speechSynthesis.getVoices();
+  const femaleVoice = voices.find(v => v.lang.includes('hi') && (v.name.includes('Female') || v.name.includes('Kalpana') || v.name.includes('Swara') || v.name.includes('Google')));
+  if(femaleVoice) utterance.voice = femaleVoice;
+
   window.speechSynthesis.speak(utterance);
 }
 
@@ -516,13 +516,15 @@ function appendRowDirect(role, text){
   avatar.className = 'avatar ' + role;
   avatar.textContent = role === 'aria' ? 'A' : 'You'.slice(0,1);
 
+  const formattedText = cleanText(text);
+
   if(role === 'aria'){
     const wrapper = document.createElement('div');
     wrapper.className = 'bubble-wrapper';
     
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.innerHTML = escapeHtml(text).replace(/\n/g,'<br>');
+    bubble.innerHTML = escapeHtml(formattedText).replace(/\n/g,'<br>');
     wrapper.appendChild(bubble);
 
     const speakBtn = document.createElement('button');
@@ -536,13 +538,19 @@ function appendRowDirect(role, text){
   } else {
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.innerHTML = escapeHtml(text).replace(/\n/g,'<br>');
+    bubble.innerHTML = escapeHtml(formattedText).replace(/\n/g,'<br>');
     row.appendChild(avatar);
     row.appendChild(bubble);
   }
 
   messagesEl.appendChild(row);
   messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.innerText = str;
+  return d.innerHTML;
 }
 
 function addRow(role, text){
@@ -573,24 +581,22 @@ function removeTyping(){
 function toggleSpeech(){
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SpeechRecognition){
-    alert("Speech recognition is not supported in this browser. Try Chrome.");
+    alert("Speech recognition is not supported in this browser.");
     return;
   }
   const recognition = new SpeechRecognition();
-  recognition.lang = 'en-IN'; // Indian English Speech Recognition
+  recognition.lang = 'hi-IN';
   const micBtn = document.getElementById('micBtn');
   
   micBtn.classList.add('recording');
   recognition.start();
 
   recognition.onresult = function(event){
-    const speechToText = event.results[0][0].transcript;
-    input.value = speechToText;
+    input.value = event.results[0][0].transcript;
     micBtn.classList.remove('recording');
   };
-
-  recognition.onerror = function(){ micBtn.classList.remove('recording'); };
-  recognition.onend = function(){ micBtn.classList.remove('recording'); };
+  recognition.onerror = () => micBtn.classList.remove('recording');
+  recognition.onend = () => micBtn.classList.remove('recording');
 }
 
 composer.addEventListener('submit', async (e) => {
