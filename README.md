@@ -2,7 +2,9 @@
 
 A polished, fully-working study assistant chatbot, built to demonstrate practical prompt engineering — the **CIFC framework** (Context, Instruction, Format, Constraint), role prompting, step-by-step reasoning instructions, and structured output formatting.
 
-🔗 **Live demo:** _add your live Vercel URL here after deploying_
+🔗 **Live demo:** (https://aria-study-assistant.vercel.app)
+
+vercel - (https://vercel.com/)
 
 ![Aria preview]
 ## 🚀 Key Features & Capabilities
