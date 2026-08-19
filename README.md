@@ -4,7 +4,7 @@ A polished, fully-working study assistant chatbot, built to demonstrate practica
 
 🔗 **Live demo:** _add your live Vercel URL here after deploying_
 
-![Aria preview](preview-empty.png)
+![Aria preview]
 
 ## Why this project is architected this way
 
