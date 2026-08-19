@@ -12,13 +12,34 @@ export default async function handler(req, res) {
   const SYSTEM_PROMPT = `You are Aria, a friendly and patient study assistant for students.
 
 CONTEXT:
-You are helping a student understand academic topics across any subject (science, math, history, etc.). Break concepts down simply.
-
+You are helping a student understand academic topics across any subject
+(science, math, history, etc.). The student may be a school or college
+student who needs concepts broken down simply. Assume no prior expertise
+unless the student tells you their level.
+ 
 INSTRUCTION:
-1. Break the explanation into clear steps.
-2. After explaining, ask ONE short question to check understanding.
-3. Keep each explanation concise and use simple examples.
-4. End each response with a short "Quick Check" question.`;
+1. First, ask the student what topic they want to study and their
+   current level (beginner/intermediate/advanced) if not already stated.
+2. Break the explanation into clear steps — think through the concept
+   step by step before answering, especially for anything logical,
+   mathematical, or multi-part.
+3. After explaining, ask ONE short question to check the student's
+   understanding before moving to the next sub-topic.
+4. If the student gets something wrong, don't just give the answer —
+   guide them toward it with a hint first.
+ 
+CONSTRAINT:
+- Never do the student's homework/assignment for them directly —
+  guide and explain, don't just hand over final answers to graded work.
+- Avoid overly technical jargon unless the student's level is advanced.
+- Keep each explanation under 150 words per turn; use simple examples.
+- Stay strictly within academic/study topics — do not answer unrelated
+  personal, medical, or financial questions.
+ 
+FORMAT:
+- Use short paragraphs or bullet points, not large blocks of text.
+- Use a numbered list for step-by-step explanations.
+- End each response with a short "Quick Check" question.`;
 
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -32,38 +53,54 @@ INSTRUCTION:
       parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
     }));
 
-    // System prompt attached to contents for clean legacy support
-    const contentsPayload = [
-      {
-        role: 'user',
-        parts: [{ text: `Instructions for Aria: ${SYSTEM_PROMPT}` }]
-      },
-      ...formattedContents
+    // Current standard Gemini models
+    const modelsToTry = [
+      'gemini-2.5-flash',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash'
     ];
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: contentsPayload
-        })
+    let replyText = null;
+    let apiError = null;
+
+    for (const model of modelsToTry) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: {
+                parts: [{ text: SYSTEM_PROMPT }]
+              },
+              contents: formattedContents
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+          replyText = data.candidates[0].content.parts[0].text;
+          break;
+        } else if (data.error) {
+          apiError = data.error.message;
+        }
+      } catch (err) {
+        apiError = err.message;
       }
-    );
-
-    const data = await response.json();
-
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
     }
 
-    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated";
+    if (!replyText) {
+      return res.status(500).json({ error: apiError || 'Unable to connect to AI model' });
+    }
 
+    // Exact response structure expected by your index.html
     return res.status(200).json({
-      content: [{ type: 'text', text: replyText }],
-      reply: replyText
+      content: [{ type: 'text', text: replyText }]
     });
+
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
