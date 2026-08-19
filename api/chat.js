@@ -48,57 +48,66 @@ FORMAT:
   }
 
   try {
+    // 1. Fetch the exact list of available models for this specific API key
+    let modelName = 'gemini-2.0-flash';
+    try {
+      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      const listData = await listRes.json();
+      
+      if (listData.models && Array.isArray(listData.models)) {
+        const supported = listData.models.filter(m => 
+          m.supportedGenerationMethods && 
+          m.supportedGenerationMethods.includes('generateContent')
+        );
+        
+        // Priority: 3.7-flash -> 2.0-flash -> any active flash/pro model
+        const bestMatch = 
+          supported.find(m => m.name.includes('3.7-flash')) ||
+          supported.find(m => m.name.includes('2.0-flash')) ||
+          supported.find(m => m.name.includes('flash')) ||
+          supported[0];
+
+        if (bestMatch && bestMatch.name) {
+          modelName = bestMatch.name.replace('models/', '');
+        }
+      }
+    } catch (e) {
+      modelName = 'gemini-2.0-flash';
+    }
+
     const formattedContents = messages.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
     }));
 
-    // Compatible modern Google Gemini models based on your AI Studio tier
-    const targetModels = [
-      'gemini-2.5-flash',
-      'gemini-2.0-flash',
-      'gemini-2.0-flash-exp',
-      'gemini-1.5-flash-8b'
-    ];
-
-    let lastError = null;
-
-    for (const model of targetModels) {
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              systemInstruction: {
-                parts: [{ text: SYSTEM_PROMPT }]
-              },
-              contents: formattedContents
-            })
-          }
-        );
-
-        const data = await response.json();
-
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-          const replyText = data.candidates[0].content.parts[0].text;
-          return res.status(200).json({
-            content: [{ type: 'text', text: replyText }]
-          });
-        }
-
-        if (data.error) {
-          lastError = data.error.message;
-        }
-      } catch (err) {
-        lastError = err.message;
+    // 2. Generate response using dynamically confirmed active model
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: SYSTEM_PROMPT }]
+          },
+          contents: formattedContents
+        })
       }
+    );
+
+    const data = await response.json();
+
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message });
     }
 
-    return res.status(500).json({ error: lastError || 'AI Studio connection failed' });
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
+
+    return res.status(200).json({
+      content: [{ type: 'text', text: replyText }]
+    });
 
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: `Server catch: ${err.message}` });
   }
 }
