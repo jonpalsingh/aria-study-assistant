@@ -53,52 +53,54 @@ FORMAT:
       parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
     }));
 
-    // Stable, fast Google models in priority order
-    const priorityModels = [
-      'gemini-2.0-flash',
+    // Flash-Lite has the highest throughput and lowest queue delay
+    const targetModels = [
       'gemini-2.0-flash-lite',
-      'gemini-2.5-flash',
-      'gemini-3.7-flash'
+      'gemini-2.0-flash',
+      'gemini-2.5-flash'
     ];
 
-    let lastError = null;
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    for (const model of priorityModels) {
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              systemInstruction: {
-                parts: [{ text: SYSTEM_PROMPT }]
-              },
-              contents: formattedContents
-            })
+    for (const model of targetModels) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                systemInstruction: {
+                  parts: [{ text: SYSTEM_PROMPT }]
+                },
+                contents: formattedContents
+              })
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+            const replyText = data.candidates[0].content.parts[0].text;
+            return res.status(200).json({
+              content: [{ type: 'text', text: replyText }]
+            });
           }
-        );
 
-        const data = await response.json();
-
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-          const replyText = data.candidates[0].content.parts[0].text;
-          return res.status(200).json({
-            content: [{ type: 'text', text: replyText }]
-          });
+          // If high demand, wait 800ms before retrying or switching
+          if (data.error && data.error.message.includes('high demand')) {
+            await sleep(800);
+          }
+        } catch (err) {
+          await sleep(500);
         }
-
-        if (data.error) {
-          lastError = data.error.message;
-        }
-      } catch (err) {
-        lastError = err.message;
       }
     }
 
-    return res.status(500).json({ error: lastError || 'Server busy, please try again.' });
+    return res.status(500).json({ error: 'AI server is processing high volume right now. Please hit send again in 5 seconds.' });
 
   } catch (err) {
-    return res.status(500).json({ error: `Server catch: ${err.message}` });
+    return res.status(500).json({ error: `Server error: ${err.message}` });
   }
 }
