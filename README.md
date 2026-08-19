@@ -28,32 +28,27 @@ This project uses **Vercel Serverless Functions** (`/api/chat.js`) to securely h
 
 ---
 
-This project uses the second approach: a tiny **serverless function** (`/api/chat.js`) holds the Claude API key as a private environment variable and proxies requests to Anthropic. The frontend never sees the key — so **anyone visiting the live link can chat with Aria immediately, with no setup.**
-
 ## Project structure
 
 ```
 aria-study-assistant/
-├── index.html        ← frontend (chat UI)
+├── index.html        ← Frontend (Chat UI, Voice, LocalStorage, Responsive Design)
 ├── api/
-│   └── chat.js        ← serverless function that calls Claude securely
+│   └── chat.js       ← Secure serverless backend proxying Groq API
 └── README.md
 ```
 
 ## How to deploy (Vercel — free, ~3 minutes)
 
-1. Push this folder to a new GitHub repository.
-2. Go to [vercel.com](https://vercel.com) → sign in with GitHub → **Add New → Project**.
-3. Import your `aria-study-assistant` repo. Leave build settings as default (Vercel auto-detects the `/api` folder).
-4. Before deploying, add an environment variable:
-   - Go to **Settings → Environment Variables**
-   - Name: `ANTHROPIC_API_KEY`
-   - Value: your Claude API key (from [console.anthropic.com](https://console.anthropic.com))
-5. Click **Deploy**. In under a minute you'll get a live URL like:
-   `https://aria-study-assistant.vercel.app`
-6. Add that link to the top of this README and to your LinkedIn post.
-
-Every time you `git push` to this repo afterward, Vercel automatically redeploys — so your GitHub repo stays the single source of truth for your portfolio.
+1. Push this project folder to a new GitHub repository.
+2. Go to vercel.com → Sign in with GitHub → Add New → Project.
+3. Import your aria-study-assistant repository. Leave build settings as default.
+4. Before clicking deploy, add your Environment Variable under Settings → Environment Variables:
+   - Name: GROQ_API_KEY
+   - Value: Your Groq API key (from console.groq.com)
+5. Click **Deploy**. Vercel will provide a live URL (e.g.,
+   `https://aria-study-assistant.vercel.app' )
+ Every subsequent git push will trigger automatic redeployments on Vercel.
 
 ## Running it locally (optional, for development)
 
@@ -61,7 +56,7 @@ Every time you `git push` to this repo afterward, Vercel automatically redeploys
 npm install -g vercel
 vercel dev
 ```
-This runs both the frontend and the `/api/chat` function locally, using a `.env` file for `ANTHROPIC_API_KEY` (don't commit that file).
+This runs both the frontend and the `/api/chat` function locally, using a `.env` file for `GROQ_API_KEY` (don't commit that file).
 
 ## What it demonstrates
 
@@ -76,14 +71,20 @@ This runs both the frontend and the `/api/chat` function locally, using a `.env`
 
 ## Tech stack
 
-- Frontend: plain HTML/CSS/JS — no framework, no build step
-- Backend: one Vercel serverless function (Node.js)
-- Model: Claude (`claude-sonnet-5`) via the Anthropic API
-- Fonts: Fraunces, Inter, IBM Plex Mono (Google Fonts)
+- Frontend: Plain HTML5, Modern CSS3 (Grid/Flexbox, Custom Properties), Vanilla JavaScript (No heavy frameworks).
 
-## Course context
+- Backend: Node.js via Vercel Serverless Functions.
 
-Built for **Session 3 — Prompting for Workflows & Hands-On Practice**, covering the CIFC framework, role-based prompting, chain-of-thought reasoning instructions, and structured prompt templates.
+- AI Model: Groq API (openai/gpt-oss-120b or equivalent Groq chat completion models).
+
+- APIs & Libraries: Web Speech API (SpeechRecognition & SpeechSynthesis), Google Fonts (Fraunces, Inter, IBM Plex Mono).
+
+## Creator & Course Context
+- Created by: Jonpal Singh
+
+- Program: Developed as part of the Masai × IIT Patna AI & ML Training Program.
+
+- Framework Focus: Prompt-engineered using the CIFC framework for intelligent workflow automation and educational support.
 
 ## License
 
