@@ -53,33 +53,54 @@ FORMAT:
       parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
     }));
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: SYSTEM_PROMPT }]
-          },
-          contents: formattedContents
-        })
+    // List of active models — if one is under high demand, it tries the next immediately
+    const candidateModels = [
+      'gemini-2.5-flash',
+      'gemini-2.0-flash-lite',
+      'gemini-2.0-flash',
+      'gemini-3.7-flash',
+      'gemini-2.5-pro'
+    ];
+
+    let lastErrorMessage = '';
+
+    for (const model of candidateModels) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: {
+                parts: [{ text: SYSTEM_PROMPT }]
+              },
+              contents: formattedContents
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+          const replyText = data.candidates[0].content.parts[0].text;
+          return res.status(200).json({
+            content: [{ type: 'text', text: replyText }]
+          });
+        }
+
+        if (data.error) {
+          lastErrorMessage = data.error.message;
+          // Continue loop to try next model
+        }
+      } catch (err) {
+        lastErrorMessage = err.message;
       }
-    );
-
-    const data = await response.json();
-
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
     }
 
-    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
-
-    return res.status(200).json({
-      content: [{ type: 'text', text: replyText }]
-    });
+    return res.status(500).json({ error: lastErrorMessage || 'All models are temporarily busy. Please retry.' });
 
   } catch (err) {
-    return res.status(500).json({ error: `Server error: ${err.message}` });
+    return res.status(500).json({ error: `Server catch: ${err.message}` });
   }
 }
