@@ -42,63 +42,46 @@ FORMAT:
 - End each response with a short "Quick Check" question.
 - If the user asks in Hindi or any other language, respond in that language.`;
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY environment variable is missing' });
+    return res.status(500).json({ error: 'GROQ_API_KEY environment variable missing in Vercel' });
   }
 
   try {
-    // Keep last 4 turns to avoid exceeding free-tier token bandwidth
-    const recentMessages = messages.slice(-4);
-
-    const formattedContents = recentMessages.map(msg => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
-    }));
-
-    const models = [
-      'gemini-2.0-flash',
-      'gemini-2.5-flash',
-      'gemini-3.7-flash'
+    const formattedMessages = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...messages.slice(-6).map(msg => ({
+        role: msg.role === 'assistant' ? 'assistant' : 'user',
+        content: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '')
+      }))
     ];
 
-    let lastError = null;
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: formattedMessages,
+        temperature: 0.6,
+        max_tokens: 600
+      })
+    });
 
-    for (const model of models) {
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              systemInstruction: {
-                parts: [{ text: SYSTEM_PROMPT }]
-              },
-              contents: formattedContents
-            })
-          }
-        );
+    const data = await response.json();
 
-        const data = await response.json();
-
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-          const replyText = data.candidates[0].content.parts[0].text;
-          return res.status(200).json({
-            content: [{ type: 'text', text: replyText }]
-          });
-        }
-
-        if (data.error) {
-          lastError = data.error.message;
-        }
-      } catch (err) {
-        lastError = err.message;
-      }
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message });
     }
 
-    return res.status(500).json({ error: lastError || 'AI service unavailable. Please retry.' });
+    const replyText = data.choices?.[0]?.message?.content || 'No response generated';
+
+    return res.status(200).json({
+      content: [{ type: 'text', text: replyText }]
+    });
 
   } catch (err) {
     return res.status(500).json({ error: `Server catch: ${err.message}` });
