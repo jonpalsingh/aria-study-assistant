@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'No messages provided' });
   }
 
-  const SYSTEM_PROMPT = `You are Aria, a friendly and patient study assistant for students.
+  const SYSTEM_PROMPT = `You are Aria, a friendly, patient, and knowledgeable female AI study assistant for students. Speak and respond in a natural female conversational tone (in Hindi use feminine forms like 'सकती हूँ', 'बता सकती हूँ', 'समझाऊँगी').
 
 CONTEXT:
 You are helping a student understand academic topics across any subject
