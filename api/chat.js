@@ -53,18 +53,17 @@ FORMAT:
       parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
     }));
 
-    // List of active models — if one is under high demand, it tries the next immediately
-    const candidateModels = [
-      'gemini-2.5-flash',
-      'gemini-2.0-flash-lite',
+    // Stable, fast Google models in priority order
+    const priorityModels = [
       'gemini-2.0-flash',
-      'gemini-3.7-flash',
-      'gemini-2.5-pro'
+      'gemini-2.0-flash-lite',
+      'gemini-2.5-flash',
+      'gemini-3.7-flash'
     ];
 
-    let lastErrorMessage = '';
+    let lastError = null;
 
-    for (const model of candidateModels) {
+    for (const model of priorityModels) {
       try {
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -90,15 +89,14 @@ FORMAT:
         }
 
         if (data.error) {
-          lastErrorMessage = data.error.message;
-          // Continue loop to try next model
+          lastError = data.error.message;
         }
       } catch (err) {
-        lastErrorMessage = err.message;
+        lastError = err.message;
       }
     }
 
-    return res.status(500).json({ error: lastErrorMessage || 'All models are temporarily busy. Please retry.' });
+    return res.status(500).json({ error: lastError || 'Server busy, please try again.' });
 
   } catch (err) {
     return res.status(500).json({ error: `Server catch: ${err.message}` });
