@@ -48,58 +48,55 @@ FORMAT:
   }
 
   try {
-    // Format conversation history for Gemini API
-    const contents = [
-      {
-        role: 'user',
-        parts: [{ text: `System Instruction: ${SYSTEM_PROMPT}` }]
-      },
-      ...messages.map(msg => ({
-        role: msg.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
-      }))
+    const formattedContents = messages.map(msg => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
+    }));
+
+    // Universal API models list to handle version shifts cleanly
+    const models = [
+      'gemini-2.5-flash',
+      'gemini-1.5-flash',
+      'gemini-1.5-pro'
     ];
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: contents
-        })
-      }
-    );
+    let lastError = null;
 
-    const data = await response.json();
+    for (const model of models) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: {
+                parts: [{ text: SYSTEM_PROMPT }]
+              },
+              contents: formattedContents
+            })
+          }
+        );
 
-    if (data.error) {
-      // Fallback to gemini-pro if flash is not found in the region
-      const fallbackResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents })
+        const data = await response.json();
+
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+          const replyText = data.candidates[0].content.parts[0].text;
+          return res.status(200).json({
+            content: [{ type: 'text', text: replyText }],
+            reply: replyText
+          });
         }
-      );
-      const fallbackData = await fallbackResponse.json();
-      if (fallbackData.error) {
-        return res.status(500).json({ error: fallbackData.error.message });
+
+        if (data.error) {
+          lastError = data.error.message;
+        }
+      } catch (err) {
+        lastError = err.message;
       }
-      const fallbackReply = fallbackData.candidates?.[0]?.content?.parts?.[0]?.text || "No response received";
-      return res.status(200).json({
-        content: [{ type: 'text', text: fallbackReply }],
-        reply: fallbackReply
-      });
     }
 
-    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated";
-
-    return res.status(200).json({
-      content: [{ type: 'text', text: replyText }],
-      reply: replyText
-    });
+    return res.status(500).json({ error: lastError || 'Failed to generate response from available AI models' });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
