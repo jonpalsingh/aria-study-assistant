@@ -6,6 +6,9 @@
 <title>Aria — AI Study Assistant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- KaTeX for clean math/science rendering -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 <style>
   :root{
     --bg:#120f1c;
@@ -501,7 +504,6 @@ function speakText(text){
   const cleanSpoken = cleanText(text);
   const utterance = new SpeechSynthesisUtterance(cleanSpoken);
   
-  // Detect if text contains Devanagari (Hindi) or English
   const isHindi = /[\u0900-\u097F]/.test(cleanSpoken);
   utterance.lang = isHindi ? 'hi-IN' : 'en-US';
   utterance.rate = 0.95;
@@ -629,7 +631,7 @@ composer.addEventListener('submit', async (e) => {
       const err = document.createElement('div');
       err.className = 'error-note';
       err.textContent = 'Error: ' + data.error;
-      messagesEl.appendChild(err);
+      messagesEl.appendChild(messagesEl.appendChild(err));
     } else {
       const reply = data.content.map(b => b.text || '').join('\n');
       addRow('aria', reply);
