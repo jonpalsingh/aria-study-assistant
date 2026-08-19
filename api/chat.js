@@ -53,53 +53,33 @@ FORMAT:
       parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
     }));
 
-    // In case of high demand on one model, automatically falls back to others
-    const modelsToTry = [
-      'gemini-2.0-flash',
-      'gemini-2.5-flash',
-      'gemini-1.5-flash-latest',
-      'gemini-2.0-flash-exp',
-      'gemini-1.5-pro-latest'
-    ];
-
-    let lastErrorMessage = '';
-
-    for (const model of modelsToTry) {
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              systemInstruction: {
-                parts: [{ text: SYSTEM_PROMPT }]
-              },
-              contents: formattedContents
-            })
-          }
-        );
-
-        const data = await response.json();
-
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-          const replyText = data.candidates[0].content.parts[0].text;
-          return res.status(200).json({
-            content: [{ type: 'text', text: replyText }]
-          });
-        }
-
-        if (data.error) {
-          lastErrorMessage = data.error.message;
-        }
-      } catch (err) {
-        lastErrorMessage = err.message;
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: SYSTEM_PROMPT }]
+          },
+          contents: formattedContents
+        })
       }
+    );
+
+    const data = await response.json();
+
+    if (data.error) {
+      return res.status(500).json({ error: data.error.message });
     }
 
-    return res.status(500).json({ error: lastErrorMessage || 'All models busy. Please try again in a few moments.' });
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated';
+
+    return res.status(200).json({
+      content: [{ type: 'text', text: replyText }]
+    });
 
   } catch (err) {
-    return res.status(500).json({ error: `Server catch: ${err.message}` });
+    return res.status(500).json({ error: `Server error: ${err.message}` });
   }
 }
