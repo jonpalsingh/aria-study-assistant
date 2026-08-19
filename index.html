@@ -74,20 +74,20 @@
   @media (max-width:480px){
     .wordmark .tagline{ font-size: 10px; padding-left: 6px; margin-left: 6px; }
   }
-  .nav-actions{ display:flex; align-items:center; gap:10px; }
+  .nav-actions{ display:flex; align-items:center; gap:8px; flex-wrap: wrap; }
   .pill-btn{
     background:var(--surface);
     border:1px solid var(--border);
     color:var(--text-muted);
     font-family:'Inter',sans-serif;
-    font-size:12.5px;
+    font-size:12px;
     font-weight:500;
-    padding:8px 14px;
+    padding:7px 12px;
     border-radius:100px;
     cursor:pointer;
     display:flex;
     align-items:center;
-    gap:6px;
+    gap:5px;
     transition:all .15s;
   }
   .pill-btn:hover{ border-color:var(--violet); color:var(--text); }
@@ -198,8 +198,13 @@
     font-size:12px;
     font-weight:600;
   }
+  .bubble-wrapper {
+    display: flex;
+    flex-direction: column;
+    max-width: 74%;
+    gap: 4px;
+  }
   .bubble{
-    max-width:74%;
     padding:12px 16px;
     border-radius:16px;
     font-size:14.5px;
@@ -216,6 +221,20 @@
     color:#fff;
     border-bottom-right-radius:4px;
   }
+  .speak-btn {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 2px 4px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .speak-btn:hover { color: var(--lamp); }
+
   .typing-row .bubble{
     display:flex; gap:5px; align-items:center; padding:14px 16px;
   }
@@ -355,8 +374,8 @@
 
   @media (max-width:640px){
     .chat-card{ border-radius:0; height:calc(100vh - 76px); }
-    nav{ padding:16px 18px; }
-    .bubble{ max-width:82%; }
+    nav{ padding:16px 14px; }
+    .bubble{ max-width:88%; }
   }
 </style>
 </head>
@@ -369,8 +388,9 @@
     <span class="tagline">AI Study Assistant · By Jonpal Singh</span>
   </div>
   <div class="nav-actions">
+    <button class="pill-btn" onclick="startQuizMode()">🎯 Quiz Mode</button>
     <button class="pill-btn" onclick="clearChat()">🗑️ New Chat</button>
-    <button class="pill-btn" onclick="openPanel()">✦ How it's built</button>
+    <button class="pill-btn" onclick="openPanel()">✦ Info</button>
   </div>
 </nav>
 
@@ -439,7 +459,6 @@ const composer = document.getElementById('composer');
 const input = document.getElementById('userInput');
 const sendBtn = document.getElementById('sendBtn');
 
-// Load saved history on startup
 if (history.length > 0) {
   if(emptyState) emptyState.remove();
   history.forEach(msg => {
@@ -461,6 +480,11 @@ function clearChat(){
   window.location.reload();
 }
 
+function startQuizMode(){
+  input.value = "Start a Quick Quiz mode for me on any important study topic!";
+  composer.requestSubmit();
+}
+
 function sendSuggestion(el){
   input.value = el.textContent;
   composer.requestSubmit();
@@ -472,17 +496,51 @@ function escapeHtml(str){
   return d.innerHTML;
 }
 
+// Text to Speech with Indian Tone preference
+function speakText(text){
+  if(!('speechSynthesis' in window)){
+    alert("Text-to-speech not supported in this browser.");
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'hi-IN'; // Indian Accent preference
+  utterance.rate = 0.95;
+  window.speechSynthesis.speak(utterance);
+}
+
 function appendRowDirect(role, text){
   const row = document.createElement('div');
   row.className = 'row ' + role;
   const avatar = document.createElement('div');
   avatar.className = 'avatar ' + role;
   avatar.textContent = role === 'aria' ? 'A' : 'You'.slice(0,1);
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  bubble.innerHTML = escapeHtml(text).replace(/\n/g,'<br>');
-  row.appendChild(avatar);
-  row.appendChild(bubble);
+
+  if(role === 'aria'){
+    const wrapper = document.createElement('div');
+    wrapper.className = 'bubble-wrapper';
+    
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = escapeHtml(text).replace(/\n/g,'<br>');
+    wrapper.appendChild(bubble);
+
+    const speakBtn = document.createElement('button');
+    speakBtn.className = 'speak-btn';
+    speakBtn.innerHTML = '🔊 Listen';
+    speakBtn.onclick = () => speakText(text);
+    wrapper.appendChild(speakBtn);
+
+    row.appendChild(avatar);
+    row.appendChild(wrapper);
+  } else {
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = escapeHtml(text).replace(/\n/g,'<br>');
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+  }
+
   messagesEl.appendChild(row);
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
@@ -512,7 +570,6 @@ function removeTyping(){
   if(t) t.remove();
 }
 
-// Voice Input Feature (Speech to Text)
 function toggleSpeech(){
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SpeechRecognition){
@@ -520,7 +577,7 @@ function toggleSpeech(){
     return;
   }
   const recognition = new SpeechRecognition();
-  recognition.lang = 'en-US';
+  recognition.lang = 'en-IN'; // Indian English Speech Recognition
   const micBtn = document.getElementById('micBtn');
   
   micBtn.classList.add('recording');
@@ -532,12 +589,8 @@ function toggleSpeech(){
     micBtn.classList.remove('recording');
   };
 
-  recognition.onerror = function(){
-    micBtn.classList.remove('recording');
-  };
-  recognition.onend = function(){
-    micBtn.classList.remove('recording');
-  };
+  recognition.onerror = function(){ micBtn.classList.remove('recording'); };
+  recognition.onend = function(){ micBtn.classList.remove('recording'); };
 }
 
 composer.addEventListener('submit', async (e) => {
