@@ -408,7 +408,7 @@
   </div>
   <div class="cifc-block">
     <span class="cifc-tag">C — CONSTRAINT</span>
-    <p class="cfile-text">Never completes graded homework directly — guides instead. Simple language unless told "advanced." Under ~150 words per turn. Stays on academic topics only.</p>
+    <p class="cifc-text">Never completes graded homework directly — guides instead. Simple language unless told "advanced." Under ~150 words per turn. Stays on academic topics only.</p>
   </div>
   <div class="cifc-block" style="border-left-color: #8f7cff;">
     <span class="cifc-tag" style="background: rgba(143,124,255,0.15); color: #8f7cff;">CREATOR</span>
@@ -486,7 +486,7 @@ composer.addEventListener('submit', async (e) => {
   const text = input.value.trim();
   if(!text) return;
 
-  Row('user', text);
+  addRow('user', text);
   history.push({ role:'user', content:text });
   input.value = '';
   sendBtn.disabled = true;
