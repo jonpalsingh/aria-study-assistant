@@ -53,54 +53,52 @@ FORMAT:
       parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
     }));
 
-    // Flash-Lite has the highest throughput and lowest queue delay
-    const targetModels = [
-      'gemini-2.0-flash-lite',
-      'gemini-2.0-flash',
-      'gemini-2.5-flash'
-    ];
-
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    for (const model of targetModels) {
-      for (let attempt = 0; attempt < 2; attempt++) {
-        try {
-          const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                systemInstruction: {
-                  parts: [{ text: SYSTEM_PROMPT }]
-                },
-                contents: formattedContents
-              })
-            }
-          );
+    // Target your confirmed active model: gemini-3.7-flash
+    const targetModel = 'gemini-3.7-flash';
+    let lastError = null;
 
-          const data = await response.json();
-
-          if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-            const replyText = data.candidates[0].content.parts[0].text;
-            return res.status(200).json({
-              content: [{ type: 'text', text: replyText }]
-            });
+    // Retry up to 3 times automatically if Google servers experience temporary spike
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: {
+                parts: [{ text: SYSTEM_PROMPT }]
+              },
+              contents: formattedContents
+            })
           }
+        );
 
-          // If high demand, wait 800ms before retrying or switching
-          if (data.error && data.error.message.includes('high demand')) {
-            await sleep(800);
-          }
-        } catch (err) {
-          await sleep(500);
+        const data = await response.json();
+
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+          const replyText = data.candidates[0].content.parts[0].text;
+          return res.status(200).json({
+            content: [{ type: 'text', text: replyText }]
+          });
         }
+
+        if (data.error) {
+          lastError = data.error.message;
+          // If high demand, wait 1.2 seconds before auto-retrying
+          await sleep(1200);
+        }
+      } catch (err) {
+        lastError = err.message;
+        await sleep(1000);
       }
     }
 
-    return res.status(500).json({ error: 'AI server is processing high volume right now. Please hit send again in 5 seconds.' });
+    return res.status(500).json({ error: lastError || 'Google AI service busy. Please try sending your message again.' });
 
   } catch (err) {
-    return res.status(500).json({ error: `Server error: ${err.message}` });
+    return res.status(500).json({ error: `Server catch: ${err.message}` });
   }
 }
