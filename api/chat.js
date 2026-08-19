@@ -13,33 +13,14 @@ export default async function handler(req, res) {
 
 CONTEXT:
 You are helping a student understand academic topics across any subject
-(science, math, history, etc.). The student may be a school or college
-student who needs concepts broken down simply. Assume no prior expertise
-unless the student tells you their level.
+(science, math, history, etc.). Break concepts down simply.
 
 INSTRUCTION:
-1. First, ask the student what topic they want to study and their
-   current level (beginner/intermediate/advanced) if not already stated.
-2. Break the explanation into clear steps — think through the concept
-   step by step before answering, especially for anything logical,
-   mathematical, or multi-part.
-3. After explaining, ask ONE short question to check the student's
-   understanding before moving to the next sub-topic.
-4. If the student gets something wrong, don't just give the answer —
-   guide them toward it with a hint first.
-
-CONSTRAINT:
-- Never do the student's homework/assignment for them directly —
-  guide and explain, don't just hand over final answers to graded work.
-- Avoid overly technical jargon unless the student's level is advanced.
-- Keep each explanation under 150 words per turn; use simple examples.
-- Stay strictly within academic/study topics — do not answer unrelated
-  personal, medical, or financial questions.
-
-FORMAT:
-- Use short paragraphs or bullet points, not large blocks of text.
-- Use a numbered list for step-by-step explanations.
-- End each response with a short "Quick Check" question.`;
+1. Break the explanation into clear steps.
+2. After explaining, ask ONE short question to check understanding.
+3. Keep each explanation under 150 words per turn; use simple examples.
+4. End each response with a short "Quick Check" question.
+5. If the user asks in Hindi or another language, explain in that language.`;
 
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -48,56 +29,61 @@ FORMAT:
   }
 
   try {
-    const formattedContents = messages.map(msg => ({
+    // Keep the last 6 messages to prevent token overload on free tier
+    const recentMessages = messages.slice(-6);
+
+    const formattedContents = recentMessages.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
     }));
 
-    // Models with generous free rate-limits (15-30 requests per min)
-    const modelsPool = [
-      'gemini-2.0-flash',
+    // List of high-availability Google models
+    const targetModels = [
       'gemini-2.0-flash-lite',
+      'gemini-2.0-flash',
       'gemini-2.5-flash',
       'gemini-3.7-flash'
     ];
 
-    let lastError = null;
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    for (const model of modelsPool) {
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              systemInstruction: {
-                parts: [{ text: SYSTEM_PROMPT }]
-              },
-              contents: formattedContents
-            })
+    for (const model of targetModels) {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                systemInstruction: {
+                  parts: [{ text: SYSTEM_PROMPT }]
+                },
+                contents: formattedContents
+              })
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+            const replyText = data.candidates[0].content.parts[0].text;
+            return res.status(200).json({
+              content: [{ type: 'text', text: replyText }]
+            });
           }
-        );
 
-        const data = await response.json();
-
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-          const replyText = data.candidates[0].content.parts[0].text;
-          return res.status(200).json({
-            content: [{ type: 'text', text: replyText }]
-          });
+          // If temporary rate limit / high demand, wait 1s before retrying
+          if (data.error) {
+            await sleep(1000);
+          }
+        } catch (err) {
+          await sleep(1000);
         }
-
-        if (data.error) {
-          lastError = data.error.message;
-          // Quota limit hit on this model -> automatically continues to next model in list
-        }
-      } catch (err) {
-        lastError = err.message;
       }
     }
 
-    return res.status(500).json({ error: lastError || 'Rate limit reached across free models. Please wait 10 seconds.' });
+    return res.status(500).json({ error: 'Google AI is currently processing heavy traffic. Please click send again.' });
 
   } catch (err) {
     return res.status(500).json({ error: `Server catch: ${err.message}` });
