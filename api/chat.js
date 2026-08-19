@@ -16,7 +16,7 @@ You are helping a student understand academic topics across any subject
 (science, math, history, etc.). The student may be a school or college
 student who needs concepts broken down simply. Assume no prior expertise
 unless the student tells you their level.
- 
+
 INSTRUCTION:
 1. First, ask the student what topic they want to study and their
    current level (beginner/intermediate/advanced) if not already stated.
@@ -27,7 +27,7 @@ INSTRUCTION:
    understanding before moving to the next sub-topic.
 4. If the student gets something wrong, don't just give the answer —
    guide them toward it with a hint first.
- 
+
 CONSTRAINT:
 - Never do the student's homework/assignment for them directly —
   guide and explain, don't just hand over final answers to graded work.
@@ -35,7 +35,7 @@ CONSTRAINT:
 - Keep each explanation under 150 words per turn; use simple examples.
 - Stay strictly within academic/study topics — do not answer unrelated
   personal, medical, or financial questions.
- 
+
 FORMAT:
 - Use short paragraphs or bullet points, not large blocks of text.
 - Use a numbered list for step-by-step explanations.
@@ -44,7 +44,7 @@ FORMAT:
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY environment variable missing' });
+    return res.status(500).json({ error: 'GEMINI_API_KEY environment variable missing in Vercel' });
   }
 
   try {
@@ -53,17 +53,17 @@ FORMAT:
       parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
     }));
 
-    // Current standard Gemini models
-    const modelsToTry = [
+    // Compatible modern Google Gemini models based on your AI Studio tier
+    const targetModels = [
       'gemini-2.5-flash',
       'gemini-2.0-flash',
-      'gemini-1.5-flash'
+      'gemini-2.0-flash-exp',
+      'gemini-1.5-flash-8b'
     ];
 
-    let replyText = null;
-    let apiError = null;
+    let lastError = null;
 
-    for (const model of modelsToTry) {
+    for (const model of targetModels) {
       try {
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -71,7 +71,7 @@ FORMAT:
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              system_instruction: {
+              systemInstruction: {
                 parts: [{ text: SYSTEM_PROMPT }]
               },
               contents: formattedContents
@@ -82,24 +82,21 @@ FORMAT:
         const data = await response.json();
 
         if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-          replyText = data.candidates[0].content.parts[0].text;
-          break;
-        } else if (data.error) {
-          apiError = data.error.message;
+          const replyText = data.candidates[0].content.parts[0].text;
+          return res.status(200).json({
+            content: [{ type: 'text', text: replyText }]
+          });
+        }
+
+        if (data.error) {
+          lastError = data.error.message;
         }
       } catch (err) {
-        apiError = err.message;
+        lastError = err.message;
       }
     }
 
-    if (!replyText) {
-      return res.status(500).json({ error: apiError || 'Unable to connect to AI model' });
-    }
-
-    // Exact response structure expected by your index.html
-    return res.status(200).json({
-      content: [{ type: 'text', text: replyText }]
-    });
+    return res.status(500).json({ error: lastError || 'AI Studio connection failed' });
 
   } catch (err) {
     return res.status(500).json({ error: err.message });
