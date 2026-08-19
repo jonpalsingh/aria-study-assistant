@@ -39,17 +39,18 @@
     display:flex;
     align-items:center;
     justify-content:space-between;
-    padding:14px 18px;
+    padding:12px 16px;
     max-width:900px;
     width:100%;
     margin:0 auto;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
   }
   .wordmark{
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:6px;
+    flex-wrap: wrap;
   }
   .wordmark .dot{
     width:8px; height:8px; border-radius:50%;
@@ -60,28 +61,28 @@
     font-family:'Fraunces',serif;
     font-style:italic;
     font-weight:600;
-    font-size:19px;
+    font-size:18px;
   }
   .wordmark .tagline{
     font-family:'Inter',sans-serif;
-    font-size:11px;
+    font-size:10.5px;
     color:var(--text-muted);
-    padding-left:8px;
-    margin-left:8px;
+    padding-left:6px;
+    margin-left:6px;
     border-left:1px solid var(--border);
   }
   @media (max-width:480px){
-    .wordmark .tagline{ display:none; }
+    .wordmark .tagline{ font-size: 9.5px; padding-left: 4px; margin-left: 4px; }
   }
-  .nav-actions{ display:flex; align-items:center; gap:6px; }
+  .nav-actions{ display:flex; align-items:center; gap:5px; }
   .pill-btn{
     background:var(--surface);
     border:1px solid var(--border);
     color:var(--text-muted);
     font-family:'Inter',sans-serif;
-    font-size:11.5px;
+    font-size:11px;
     font-weight:500;
-    padding:6px 10px;
+    padding:5px 9px;
     border-radius:100px;
     cursor:pointer;
     display:flex;
@@ -97,17 +98,17 @@
     flex:1;
     display:flex;
     justify-content:center;
-    padding:5px 12px 16px;
+    padding:5px 10px 14px;
   }
   .chat-card{
     width:100%;
     max-width:720px;
     display:flex;
     flex-direction:column;
-    height:calc(100vh - 80px);
+    height:calc(100vh - 75px);
     background:linear-gradient(180deg, rgba(30,24,50,0.6), rgba(30,24,50,0.3));
     border:1px solid var(--border);
-    border-radius:18px;
+    border-radius:16px;
     overflow:hidden;
     backdrop-filter:blur(6px);
   }
@@ -115,10 +116,10 @@
   .messages{
     flex:1;
     overflow-y:auto;
-    padding:20px 16px 10px;
+    padding:16px 14px 10px;
     display:flex;
     flex-direction:column;
-    gap:14px;
+    gap:12px;
   }
 
   /* empty state */
@@ -129,43 +130,43 @@
     align-items:center;
     justify-content:center;
     text-align:center;
-    padding:0 10px;
-    gap:18px;
+    padding:0 8px;
+    gap:16px;
   }
   .empty-state .glow-avatar{
-    width:54px; height:54px; border-radius:50%;
+    width:50px; height:50px; border-radius:50%;
     background:radial-gradient(circle at 35% 30%, #ffe3b0, var(--lamp) 45%, var(--violet-deep) 100%);
-    box-shadow:0 0 30px 5px rgba(255,180,84,0.25);
+    box-shadow:0 0 25px 4px rgba(255,180,84,0.25);
     animation:pulse 3.5s ease-in-out infinite;
   }
   @keyframes pulse{
-    0%,100%{ transform:scale(1); box-shadow:0 0 30px 5px rgba(255,180,84,0.25); }
-    50%{ transform:scale(1.06); box-shadow:0 0 45px 8px rgba(255,180,84,0.4); }
+    0%,100%{ transform:scale(1); box-shadow:0 0 25px 4px rgba(255,180,84,0.25); }
+    50%{ transform:scale(1.06); box-shadow:0 0 40px 7px rgba(255,180,84,0.4); }
   }
   .empty-state h1{
     font-family:'Fraunces',serif;
     font-weight:600;
-    font-size:24px;
+    font-size:22px;
   }
   .empty-state p{
     color:var(--text-muted);
-    font-size:13.5px;
-    max-width:320px;
-    line-height:1.5;
+    font-size:13px;
+    max-width:300px;
+    line-height:1.45;
   }
   .chips{
     display:flex;
     flex-wrap:wrap;
-    gap:7px;
+    gap:6px;
     justify-content:center;
-    max-width:420px;
+    max-width:400px;
   }
   .chip{
     background:var(--surface);
     border:1px solid var(--border);
     color:var(--text);
-    font-size:12px;
-    padding:7px 12px;
+    font-size:11.5px;
+    padding:6px 11px;
     border-radius:100px;
     cursor:pointer;
     transition:all .15s;
@@ -176,14 +177,14 @@
   }
 
   /* messages */
-  .row{ display:flex; gap:9px; align-items:flex-end; animation:rise .3s ease; }
-  @keyframes rise{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0);} }
+  .row{ display:flex; gap:8px; align-items:flex-end; animation:rise .3s ease; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(5px); } to{ opacity:1; transform:translateY(0);} }
   .row.user{ flex-direction:row-reverse; }
   .avatar{
-    width:26px; height:26px; border-radius:50%;
+    width:24px; height:24px; border-radius:50%;
     flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Fraunces',serif; font-weight:600; font-size:11px;
+    font-family:'Fraunces',serif; font-weight:600; font-size:10px;
   }
   .avatar.aria{
     background:radial-gradient(circle at 35% 30%, #ffe3b0, var(--lamp) 60%, var(--violet-deep));
@@ -194,20 +195,20 @@
     border:1px solid var(--border);
     color:var(--text-muted);
     font-family:'Inter',sans-serif;
-    font-size:11px;
+    font-size:10px;
     font-weight:600;
   }
   .bubble-wrapper {
     display: flex;
     flex-direction: column;
-    max-width: 82%;
+    max-width: 85%;
     gap: 3px;
   }
   .bubble{
-    padding:10px 14px;
-    border-radius:14px;
-    font-size:13.5px;
-    line-height:1.55;
+    padding:10px 13px;
+    border-radius:13px;
+    font-size:13px;
+    line-height:1.5;
     word-break: break-word;
   }
   .row.aria .bubble{
@@ -225,9 +226,9 @@
     background: none;
     border: none;
     color: var(--text-muted);
-    font-size: 10.5px;
+    font-size: 10px;
     cursor: pointer;
-    padding: 2px 4px;
+    padding: 2px 3px;
     display: flex;
     align-items: center;
     gap: 3px;
@@ -235,7 +236,7 @@
   .speak-btn:hover { color: var(--lamp); }
 
   .typing-row .bubble{
-    display:flex; gap:4px; align-items:center; padding:12px 14px;
+    display:flex; gap:4px; align-items:center; padding:10px 12px;
   }
   .typing-dot{
     width:5px; height:5px; border-radius:50%;
@@ -257,8 +258,8 @@
   /* composer */
   .composer{
     display:flex;
-    gap:8px;
-    padding:12px 14px 14px;
+    gap:7px;
+    padding:10px 12px 12px;
     border-top:1px solid var(--border);
     align-items: center;
   }
@@ -268,9 +269,9 @@
     border:1px solid var(--border);
     color:var(--text);
     font-family:'Inter',sans-serif;
-    font-size:13.5px;
-    padding:11px 14px;
-    border-radius:12px;
+    font-size:13px;
+    padding:10px 12px;
+    border-radius:11px;
     outline:none;
     transition:border-color .15s;
   }
@@ -278,8 +279,8 @@
   .composer input::placeholder{ color:var(--text-muted); }
   
   .icon-btn{
-    width:40px; height:40px;
-    border-radius:12px;
+    width:38px; height:38px;
+    border-radius:11px;
     border:1px solid var(--border);
     background:var(--surface);
     color:var(--text-muted);
@@ -292,8 +293,8 @@
   .icon-btn.recording{ background:rgba(255,80,80,0.2); border-color:#ff5050; color:#ff8a8a; animation: pulse 1s infinite; }
 
   .send-btn{
-    width:40px; height:40px;
-    border-radius:12px;
+    width:38px; height:38px;
+    border-radius:11px;
     border:none;
     background:linear-gradient(135deg, var(--lamp), var(--violet));
     color:#1c1526;
@@ -314,11 +315,11 @@
   }
   .overlay.open{ opacity:1; pointer-events:auto; }
   .panel{
-    position:fixed; top:0; right:-420px; width:360px; max-width:85vw; height:100%;
+    position:fixed; top:0; right:-420px; width:340px; max-width:85vw; height:100%;
     background:var(--bg-2);
     border-left:1px solid var(--border);
     z-index:41;
-    padding:24px 20px;
+    padding:22px 18px;
     overflow-y:auto;
     transition:right .3s cubic-bezier(.2,.8,.2,1);
   }
@@ -329,51 +330,51 @@
   }
   .panel h2{
     font-family:'Fraunces',serif;
-    font-size:20px;
+    font-size:19px;
     font-weight:600;
     margin-bottom:6px;
   }
   .panel .sub{
     color:var(--text-muted);
-    font-size:12px;
-    margin-bottom:20px;
+    font-size:11.5px;
+    margin-bottom:18px;
     line-height:1.4;
   }
   .cifc-block{
-    margin-bottom:16px;
-    padding-left:12px;
+    margin-bottom:14px;
+    padding-left:10px;
     border-left:3px solid var(--lamp);
   }
   .cifc-tag{
     display:inline-block;
     font-family:'IBM Plex Mono',monospace;
-    font-size:9.5px;
+    font-size:9px;
     letter-spacing:0.08em;
     background:rgba(255,180,84,0.15);
     color:var(--lamp);
-    padding:2px 6px;
+    padding:2px 5px;
     border-radius:4px;
-    margin-bottom:5px;
+    margin-bottom:4px;
     font-weight:600;
   }
   .cifc-text{
-    font-size:12.5px;
-    line-height:1.5;
+    font-size:12px;
+    line-height:1.45;
     color:#d8d2ec;
   }
   .cifc-text strong{ color:#fff; }
 
   footer{
     text-align:center;
-    padding:10px;
+    padding:8px;
     font-family:'IBM Plex Mono',monospace;
-    font-size:10px;
+    font-size:9.5px;
     color:#5f5680;
   }
 
   @media (max-width:640px){
-    .chat-card{ border-radius:0; height:calc(100vh - 65px); }
-    nav{ padding:10px 12px; }
+    .chat-card{ border-radius:0; height:calc(100vh - 60px); }
+    nav{ padding:8px 10px; }
   }
 </style>
 </head>
@@ -381,8 +382,10 @@
 
 <nav>
   <div class="wordmark">
-    <span class="dot"></span>
-    <span>Aria</span>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <span class="dot"></span>
+      <span>Aria</span>
+    </div>
     <span class="tagline">AI Study Assistant · By Jonpal Singh</span>
   </div>
   <div class="nav-actions">
@@ -405,7 +408,7 @@
           <div class="chip" onclick="sendSuggestion(this)">Explain photosynthesis simply</div>
           <div class="chip" onclick="sendSuggestion(this)">Help me understand quadratic equations</div>
           <div class="chip" onclick="sendSuggestion(this)">Quiz me on World War II</div>
-          <div class="chip" onclick="sendSuggestion(this)">What's the difference between mitosis and meiosis?</div>
+          <div class="chip" onclick="sendSuggestion(this)">(हिंदी में) प्रकाश संश्लेषण समझाइए</div>
         </div>
       </div>
     </div>
@@ -413,7 +416,7 @@
       <button type="button" class="icon-btn" id="micBtn" onclick="toggleSpeech()" title="Speak">🎤</button>
       <input type="text" id="userInput" placeholder="Ask Aria anything..." autocomplete="off" />
       <button type="submit" class="send-btn" id="sendBtn" aria-label="Send">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 12L20 4L14 20L11 13L4 12Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 12L20 4L14 20L11 13L4 12Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
       </button>
     </form>
   </div>
@@ -488,7 +491,6 @@ function sendSuggestion(el){
   composer.requestSubmit();
 }
 
-// Clean markdown stars so text looks neat
 function cleanText(text){
   return text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
 }
@@ -498,12 +500,14 @@ function speakText(text){
   window.speechSynthesis.cancel();
   const cleanSpoken = cleanText(text);
   const utterance = new SpeechSynthesisUtterance(cleanSpoken);
-  utterance.lang = 'hi-IN'; // Indian Accent
-  utterance.rate = 0.95;
   
-  // Try to pick a female voice if available in browser
+  // Detect if text contains Devanagari (Hindi) or English
+  const isHindi = /[\u0900-\u097F]/.test(cleanSpoken);
+  utterance.lang = isHindi ? 'hi-IN' : 'en-US';
+  utterance.rate = 0.95;
+
   const voices = window.speechSynthesis.getVoices();
-  const femaleVoice = voices.find(v => v.lang.includes('hi') && (v.name.includes('Female') || v.name.includes('Kalpana') || v.name.includes('Swara') || v.name.includes('Google')));
+  const femaleVoice = voices.find(v => v.lang.includes(isHindi ? 'hi' : 'en') && (v.name.includes('Female') || v.name.includes('Kalpana') || v.name.includes('Swara') || v.name.includes('Google')));
   if(femaleVoice) utterance.voice = femaleVoice;
 
   window.speechSynthesis.speak(utterance);
