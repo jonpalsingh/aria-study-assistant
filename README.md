@@ -5,6 +5,15 @@ A polished, fully-working study assistant chatbot, built to demonstrate practica
 🔗 **Live demo:** _add your live Vercel URL here after deploying_
 
 ![Aria preview]
+## 🚀 Key Features & Capabilities
+
+* **🧠 CIFC Framework Prompt Engineering:** System prompt structured around Context, Instruction, Format, and Constraint to ensure pedagogical, step-by-step guidance without direct homework spoon-feeding.
+* **🗣️ Voice Support (Speech-to-Text & Text-to-Speech):** Integrated browser Web Speech APIs allowing users to speak their questions and listen to Aria's responses with a natural female Indian accent.
+* **🌐 Smart Multilingual Support:** Dynamically matches the user's language—seamlessly responding in English, Hindi, or Hinglish based on the user's input.
+* **💾 Persistent Chat History:** Saves conversation state using browser `localStorage`, ensuring a seamless user experience across page refreshes and mobile sessions.
+* **🎯 Quick Quiz Mode:** Dedicated quick-action button to instantly test students on any study topic.
+* **📐 Clean Formatting & Math Support:** Strips raw markdown artifacts for speech clarity while supporting clean layout rendering for academic concepts.
+* **🔒 Secure Serverless Architecture:** The API key is kept completely secure on the backend, exposing no sensitive keys to the client side.
 
 ## Why this project is architected this way
 
