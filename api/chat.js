@@ -53,17 +53,20 @@ FORMAT:
       parts: [{ text: typeof msg.content === 'string' ? msg.content : (msg.content?.[0]?.text || '') }]
     }));
 
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    // Models with generous free rate-limits (15-30 requests per min)
+    const modelsPool = [
+      'gemini-2.0-flash',
+      'gemini-2.0-flash-lite',
+      'gemini-2.5-flash',
+      'gemini-3.7-flash'
+    ];
 
-    // Target your confirmed active model: gemini-3.7-flash
-    const targetModel = 'gemini-3.7-flash';
     let lastError = null;
 
-    // Retry up to 3 times automatically if Google servers experience temporary spike
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    for (const model of modelsPool) {
       try {
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -87,16 +90,14 @@ FORMAT:
 
         if (data.error) {
           lastError = data.error.message;
-          // If high demand, wait 1.2 seconds before auto-retrying
-          await sleep(1200);
+          // Quota limit hit on this model -> automatically continues to next model in list
         }
       } catch (err) {
         lastError = err.message;
-        await sleep(1000);
       }
     }
 
-    return res.status(500).json({ error: lastError || 'Google AI service busy. Please try sending your message again.' });
+    return res.status(500).json({ error: lastError || 'Rate limit reached across free models. Please wait 10 seconds.' });
 
   } catch (err) {
     return res.status(500).json({ error: `Server catch: ${err.message}` });
