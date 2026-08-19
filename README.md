@@ -17,12 +17,16 @@ A polished, fully-working study assistant chatbot, built to demonstrate practica
 
 ## Why this project is architected this way
 
-A study bot needs an API key to talk to Claude. There are two ways to handle that key:
+A production-grade AI app requires keeping private API keys secure:
 
 | Approach | What happens |
 |---|---|
-| ❌ Key lives in the browser (plain static site) | Anyone viewing the page's source can see and steal the key |
-| ✅ Key lives on a server, browser calls the server | The key is never exposed — this is what real products do |
+| ❌ Key lives in the browser (plain static site) | Anyone viewing the page source can inspect and steal your API key. |
+| ✅ Key lives on a server, browser calls the server | The key remains private and hidden — this is what real products implement. |
+
+This project uses **Vercel Serverless Functions** (`/api/chat.js`) to securely host the **Groq API** key as a private environment variable. The frontend proxies all requests through this serverless function, allowing anyone to chat with Aria securely with zero setup.
+
+---
 
 This project uses the second approach: a tiny **serverless function** (`/api/chat.js`) holds the Claude API key as a private environment variable and proxies requests to Anthropic. The frontend never sees the key — so **anyone visiting the live link can chat with Aria immediately, with no setup.**
 
