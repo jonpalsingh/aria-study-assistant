@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aria — AI Study Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#120f1c;
+    --bg-2:#171326;
+    --surface:#1e1832;
+    --surface-2:#251e3d;
+    --border:#332a4f;
+    --text:#f2eefb;
+    --text-muted:#9c93b8;
+    --lamp:#ffb454;
+    --violet:#8f7cff;
+    --violet-deep:#6c5ce7;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{ height:100%; }
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(255,180,84,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 90% 10%, rgba(143,124,255,0.08), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
+  }
+
+  /* ---------- Nav ---------- */
+  nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:22px 28px;
+    max-width:900px;
+    width:100%;
+    margin:0 auto;
+  }
+  .wordmark{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .wordmark .dot{
+    width:9px; height:9px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ffe3b0, var(--lamp));
+    box-shadow:0 0 12px 2px rgba(255,180,84,0.6);
+  }
+  .wordmark span{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:21px;
+    letter-spacing:0.01em;
+  }
+  .wordmark .tagline{
+    font-family:'Inter',sans-serif;
+    font-style:normal;
+    font-weight:500;
+    font-size:12px;
+    color:var(--text-muted);
+    padding-left:10px;
+    margin-left:10px;
+    border-left:1px solid var(--border);
+  }
+  @media (max-width:480px){
+    .wordmark .tagline{ display:none; }
+  }
+  .nav-actions{ display:flex; align-items:center; gap:10px; }
+  .pill-btn{
+    background:var(--surface);
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    font-weight:500;
+    padding:8px 14px;
+    border-radius:100px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    transition:all .15s;
+  }
+  .pill-btn:hover{ border-color:var(--violet); color:var(--text); }
+
+  /* ---------- Hero / chat card ---------- */
+  main{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    padding:10px 20px 28px;
+  }
+  .chat-card{
+    width:100%;
+    max-width:720px;
+    display:flex;
+    flex-direction:column;
+    height:calc(100vh - 100px);
+    background:linear-gradient(180deg, rgba(30,24,50,0.6), rgba(30,24,50,0.3));
+    border:1px solid var(--border);
+    border-radius:22px;
+    overflow:hidden;
+    backdrop-filter:blur(6px);
+  }
+
+  .messages{
+    flex:1;
+    overflow-y:auto;
+    padding:32px 30px 10px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  /* empty state */
+  .empty-state{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:0 20px;
+    gap:22px;
+  }
+  .empty-state .glow-avatar{
+    width:64px; height:64px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #ffe3b0, var(--lamp) 45%, var(--violet-deep) 100%);
+    box-shadow:0 0 40px 6px rgba(255,180,84,0.25);
+    animation:pulse 3.5s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ transform:scale(1); box-shadow:0 0 40px 6px rgba(255,180,84,0.25); }
+    50%{ transform:scale(1.06); box-shadow:0 0 55px 10px rgba(255,180,84,0.4); }
+  }
+  .empty-state h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:30px;
+  }
+  .empty-state p{
+    color:var(--text-muted);
+    font-size:14.5px;
+    max-width:340px;
+    line-height:1.6;
+  }
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:9px;
+    justify-content:center;
+    max-width:460px;
+  }
+  .chip{
+    background:var(--surface);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-size:13px;
+    padding:9px 15px;
+    border-radius:100px;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .chip:hover{
+    border-color:var(--lamp);
+    background:var(--surface-2);
+    transform:translateY(-1px);
+  }
+
+  /* messages */
+  .row{ display:flex; gap:11px; align-items:flex-end; animation:rise .35s ease; }
+  @keyframes rise{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0);} }
+  .row.user{ flex-direction:row-reverse; }
+  .avatar{
+    width:30px; height:30px; border-radius:50%;
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces',serif; font-weight:600; font-size:13px;
+  }
+  .avatar.aria{
+    background:radial-gradient(circle at 35% 30%, #ffe3b0, var(--lamp) 60%, var(--violet-deep));
+    color:#241708;
+  }
+  .avatar.user{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:600;
+  }
+  .bubble{
+    max-width:74%;
+    padding:12px 16px;
+    border-radius:16px;
+    font-size:14.5px;
+    line-height:1.62;
+    white-space:pre-wrap;
+  }
+  .row.aria .bubble{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-bottom-left-radius:4px;
+  }
+  .row.user .bubble{
+    background:linear-gradient(135deg, var(--violet-deep), var(--violet));
+    color:#fff;
+    border-bottom-right-radius:4px;
+  }
+  .typing-row .bubble{
+    display:flex; gap:5px; align-items:center; padding:14px 16px;
+  }
+  .typing-dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--text-muted);
+    animation:blink 1.2s infinite ease-in-out;
+  }
+  .typing-dot:nth-child(2){ animation-delay:.2s; }
+  .typing-dot:nth-child(3){ animation-delay:.4s; }
+  @keyframes blink{ 0%,80%,100%{ opacity:0.25; } 40%{ opacity:1; } }
+
+  .error-note{
+    align-self:center;
+    color:#ff8a8a;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    text-align:center;
+  }
+
+  /* composer */
+  .composer{
+    display:flex;
+    gap:10px;
+    padding:16px 20px 20px;
+    border-top:1px solid var(--border);
+  }
+  .composer input{
+    flex:1;
+    background:var(--surface);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:14.5px;
+    padding:13px 17px;
+    border-radius:14px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  .composer input:focus{ border-color:var(--violet); }
+  .composer input::placeholder{ color:var(--text-muted); }
+  .send-btn{
+    width:46px; height:46px;
+    border-radius:14px;
+    border:none;
+    background:linear-gradient(135deg, var(--lamp), var(--violet));
+    color:#1c1526;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:filter .15s, transform .1s;
+  }
+  .send-btn:hover{ filter:brightness(1.1); }
+  .send-btn:active{ transform:scale(0.94); }
+  .send-btn:disabled{ opacity:0.4; cursor:not-allowed; }
+
+  /* ---------- Slide-over "How it's built" panel ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(8,6,14,0.6);
+    opacity:0; pointer-events:none; transition:opacity .25s;
+    z-index:40;
+  }
+  .overlay.open{ opacity:1; pointer-events:auto; }
+  .panel{
+    position:fixed; top:0; right:-420px; width:400px; max-width:88vw; height:100%;
+    background:var(--bg-2);
+    border-left:1px solid var(--border);
+    z-index:41;
+    padding:28px 26px;
+    overflow-y:auto;
+    transition:right .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .panel.open{ right:0; }
+  .panel-close{
+    background:none; border:none; color:var(--text-muted);
+    font-size:22px; cursor:pointer; float:right; line-height:1;
+  }
+  .panel h2{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  .panel .sub{
+    color:var(--text-muted);
+    font-size:13px;
+    margin-bottom:24px;
+    line-height:1.5;
+  }
+  .cifc-block{
+    margin-bottom:18px;
+    padding-left:14px;
+    border-left:3px solid var(--lamp);
+  }
+  .cifc-tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.08em;
+    background:rgba(255,180,84,0.15);
+    color:var(--lamp);
+    padding:3px 8px;
+    border-radius:5px;
+    margin-bottom:7px;
+    font-weight:600;
+  }
+  .cifc-text{
+    font-size:13.3px;
+    line-height:1.6;
+    color:#d8d2ec;
+  }
+  .cifc-text strong{ color:#fff; }
+
+  footer{
+    text-align:center;
+    padding:14px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:#5f5680;
+  }
+
+  @media (max-width:640px){
+    .chat-card{ border-radius:0; height:calc(100vh - 76px); }
+    nav{ padding:16px 18px; }
+    .bubble{ max-width:82%; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wordmark"><span class="dot"></span><span>Aria</span><span class="tagline">AI Study Assistant</span></div>
+  <div class="nav-actions">
+    <button class="pill-btn" onclick="openPanel()">✦ How it's built</button>
+  </div>
+</nav>
+
+<main>
+  <div class="chat-card">
+    <div class="messages" id="messages">
+      <div class="empty-state" id="emptyState">
+        <div class="glow-avatar"></div>
+        <div>
+          <h1>What are you studying today?</h1>
+          <p>Aria explains things step by step and checks your understanding along the way — try one below, or type your own.</p>
+        </div>
+        <div class="chips">
+          <div class="chip" onclick="sendSuggestion(this)">Explain photosynthesis simply</div>
+          <div class="chip" onclick="sendSuggestion(this)">Help me understand quadratic equations</div>
+          <div class="chip" onclick="sendSuggestion(this)">Quiz me on World War II</div>
+          <div class="chip" onclick="sendSuggestion(this)">What's the difference between mitosis and meiosis?</div>
+        </div>
+      </div>
+    </div>
+    <form class="composer" id="composer">
+      <input type="text" id="userInput" placeholder="Ask Aria anything you're studying…" autocomplete="off" />
+      <button type="submit" class="send-btn" id="sendBtn" aria-label="Send">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 12L20 4L14 20L11 13L4 12Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </button>
+    </form>
+  </div>
+</main>
+
+<footer>Prompt-engineered with the CIFC framework · Built for an AI Tools course</footer>
+
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+<div class="panel" id="panel">
+  <button class="panel-close" onclick="closePanel()">&times;</button>
+  <h2>How Aria is built</h2>
+  <p class="sub">Aria's entire behavior comes from one system prompt, structured with the <strong>CIFC framework</strong> — Context, Instruction, Format, Constraint.</p>
+
+  <div class="cifc-block">
+    <span class="cifc-tag">C — CONTEXT</span>
+    <p class="cifc-text">Aria helps students across <strong>any subject</strong>, at a level the student states (or is asked for). No prior expertise is assumed.</p>
+  </div>
+  <div class="cifc-block">
+    <span class="cifc-tag">I — INSTRUCTION</span>
+    <p class="cifc-text">Ask the topic + level first → explain <strong>step by step</strong> → ask one quick check-question before moving on → if the student is wrong, hint first instead of giving the answer.</p>
+  </div>
+  <div class="cifc-block">
+    <span class="cifc-tag">F — FORMAT</span>
+    <p class="cifc-text">Short paragraphs or bullets. Numbered steps for explanations. Every reply ends with a <strong>Quick Check</strong> question.</p>
+  </div>
+  <div class="cifc-block">
+    <span class="cifc-tag">C — CONSTRAINT</span>
+    <p class="cifc-text">Never completes graded homework directly — guides instead. Simple language unless told "advanced." Under ~150 words per turn. Stays on academic topics only.</p>
+  </div>
+</div>
+
+<script>
+let history = [];
+const messagesEl = document.getElementById('messages');
+const emptyState = document.getElementById('emptyState');
+const composer = document.getElementById('composer');
+const input = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+
+function openPanel(){
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function closePanel(){
+  document.getElementById('panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function sendSuggestion(el){
+  input.value = el.textContent;
+  composer.requestSubmit();
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.innerText = str;
+  return d.innerHTML;
+}
+
+function addRow(role, text){
+  if(emptyState) emptyState.remove();
+  const row = document.createElement('div');
+  row.className = 'row ' + role;
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar ' + role;
+  avatar.textContent = role === 'aria' ? 'A' : 'You'.slice(0,1);
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = escapeHtml(text).replace(/\n/g,'<br>');
+  row.appendChild(avatar);
+  row.appendChild(bubble);
+  messagesEl.appendChild(row);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return row;
+}
+
+function addTyping(){
+  const row = document.createElement('div');
+  row.className = 'row aria typing-row';
+  row.id = 'typingRow';
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar aria';
+  avatar.textContent = 'A';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+  row.appendChild(avatar);
+  row.appendChild(bubble);
+  messagesEl.appendChild(row);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+function removeTyping(){
+  const t = document.getElementById('typingRow');
+  if(t) t.remove();
+}
+
+composer.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const text = input.value.trim();
+  if(!text) return;
+
+  addRow('user', text);
+  history.push({ role:'user', content:text });
+  input.value = '';
+  sendBtn.disabled = true;
+  addTyping();
+
+  try{
+    const res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ messages: history })
+    });
+    const data = await res.json();
+    removeTyping();
+
+    if(data.error){
+      const err = document.createElement('div');
+      err.className = 'error-note';
+      err.textContent = 'Error: ' + data.error;
+      messagesEl.appendChild(err);
+    } else {
+      const reply = data.content.map(b => b.text || '').join('\n');
+      addRow('aria', reply);
+      history.push({ role:'assistant', content:reply });
+    }
+  } catch(err){
+    removeTyping();
+    const errEl = document.createElement('div');
+    errEl.className = 'error-note';
+    errEl.textContent = 'Network error: ' + err.message;
+    messagesEl.appendChild(errEl);
+  }
+
+  sendBtn.disabled = false;
+  input.focus();
+});
+</script>
+
+</body>
+</html>
